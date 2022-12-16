@@ -18,15 +18,10 @@ void IEE754_binary64_encode( double x, char out[8] ){
       x = -x;
     int e = 0;
     fraction = frexp( x, &e ) * ((uint64_t)2<<52);
-    if( e <= 1022 ){ // denormale, special case
-      exponent = 0;
+    exponent = e + 1022;
+    if( exponent > 0x7FF ){
+      exponent = 0x7FF;
       fraction = 0;
-    }else{
-      exponent = e + 1022;
-      if( exponent > 0x7FF ){
-        exponent = 0x7FF;
-        fraction = 0;
-      }
     }
   }
   out[0] = ( ( sign << 7 ) & 0x80 )
@@ -79,15 +74,10 @@ void IEE754_binary32_encode( float x, char out[4] ){
       x = -x;
     int e = 0;
     fraction = frexp( x, &e ) * ((uint32_t)2<<23);
-    if( e <= 126 ){
+    exponent = e + 126;
+    if( e + 126 > 0xFF ){
+      exponent = 0xFF;
       fraction = 0;
-      exponent = 0;
-    }else{
-      exponent = e + 126;
-      if( e + 126 > 0xFF ){
-        exponent = 0xFF;
-        fraction = 0;
-      }
     }
   }
   out[0] = ( ( sign << 7 ) & 0x80 )
